@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plagiarism Detection Result</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        h1 { color: #333; }
+        .text-container { display: flex; justify-content: space-between; }
+        .text-box { width: 48%; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }
+        h2 { color: #444; }
+        .similarity { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; }
+        .legend { margin-bottom: 20px; }
+        .legend-item { display: inline-block; margin-right: 20px; }
+        .color-box { display: inline-block; width: 20px; height: 20px; margin-right: 5px; vertical-align: middle; }
+        .check-again { display: block; width: 200px; background-color: #007bff; color: white; text-align: center; padding: 10px; text-decoration: none; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>Plagiarism Detection Result</h1>
+    <div class="similarity">Similarity Percentage: {{ similarity_percentage|round(2) }}%</div>
+    <div class="legend">
+        <div class="legend-item">
+            <span class="color-box" style="background-color: #00B050;"></span>
+            High Similarity (>=0.8)
+        </div>
+        <div class="legend-item">
+            <span class="color-box" style="background-color: #92D050;"></span>
+            Medium Similarity (0.7-0.79)
+        </div>
+        <div class="legend-item">
+            <span class="color-box" style="background-color: #C6E0B4;"></span>
+            Low Similarity (0.5-0.69)
+        </div>
+    </div>
+    <div class="text-container">
+        <div class="text-box">
+            <h2>Text 1</h2>
+            <p>{{ highlighted_text1|safe }}</p>
+        </div>
+        <div class="text-box">
+            <h2>Text 2</h2>
+            <p>{{ highlighted_text2|safe }}</p>
+        </div>
+    </div>
+    <a href="/" class="check-again">Check another pair of texts</a>
+    <h2>Detailed Matches</h2>
+    <ul>
+        {% for s1, s2, _, sim in matches %}
+        <li>Similarity: {{ sim|round(2) }} - Text 1: "{{ s1 }}" | Text 2: "{{ s2 }}"</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
