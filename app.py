@@ -135,7 +135,7 @@ def highlight_text_html(text, matches, is_text1=True):
     color_map = {
         'dark_green': '#00B050',
         'medium_green': '#92D050',
-        'light_green': '#C6E0B4'  # New light green color
+        'light_green': '#C6E0B4' 
     }
     
     for sent1, sent2, color, _ in matches:
