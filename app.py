@@ -88,35 +88,44 @@ def compare_texts(text1, text2):
     similarity_matrix = cosine_similarity(tfidf_matrix, tfidf_matrix)
     
     matches = []
-    total_chars = sum(len(sent) for sent in original_sentences1)
+    total_chars1 = sum(len(sent) for sent in original_sentences1)
+    total_chars2 = sum(len(sent) for sent in original_sentences2)
     matched_chars = 0
     
     for i, (proc_sent1, orig_sent1) in enumerate(zip(processed_sentences1, original_sentences1)):
+        best_match = None
+        best_sim = 0
         for j, (proc_sent2, orig_sent2) in enumerate(zip(processed_sentences2, original_sentences2)):
             cosine_sim = similarity_matrix[i][j + len(processed_sentences1)]
             jaccard_sim = jaccard_similarity(set(proc_sent1.split()), set(proc_sent2.split()))
             lcs_sim = lcs_similarity(proc_sent1, proc_sent2)
             
-            # Check for synonym overlap
             words1 = set(proc_sent1.split())
             words2 = set(proc_sent2.split())
             synonym_overlap = sum(1 for w1 in words1 for w2 in words2 if w2 in get_synonyms(w1))
             synonym_sim = synonym_overlap / max(len(words1), len(words2)) if max(len(words1), len(words2)) > 0 else 0
             
-            # Combine similarity scores
             combined_sim = (cosine_sim + jaccard_sim + lcs_sim + synonym_sim) / 4
             
-            if combined_sim >= 0.36:
-                if combined_sim >= 0.8:
+            if combined_sim > best_sim:
+                best_sim = combined_sim
+                if best_sim >= 0.8:
                     color = 'dark_green'
-                elif combined_sim >= 0.7:
+                elif best_sim >= 0.7:
                     color = 'medium_green'
-                else:
+                elif best_sim >= 0.3:
                     color = 'light_green'
-                matches.append((orig_sent1, orig_sent2, color, combined_sim))
-                matched_chars += len(orig_sent1)
+                else:
+                    color = None
+                best_match = (orig_sent1, orig_sent2, color, best_sim)
+        
+        if best_match and best_match[3] >= 0.5:
+            matches.append(best_match)
+            matched_chars += len(best_match[0])  # Count characters from text1
     
-    similarity_percentage = (matched_chars / total_chars) * 100 if total_chars > 0 else 0
+    # Calculate similarity percentage based on the shorter text
+    shorter_length = min(total_chars1, total_chars2)
+    similarity_percentage = (matched_chars / shorter_length) * 100 if shorter_length > 0 else 0
     
     return matches, similarity_percentage
 

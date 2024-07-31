@@ -31,7 +31,7 @@
         </div>
         <div class="legend-item">
             <span class="color-box" style="background-color: #C6E0B4;"></span>
-            Low Similarity (0.36-0.69)
+            Low Similarity (0.3-0.69)
         </div>
     </div>
     <div class="text-container">
@@ -47,7 +47,7 @@
     <a href="/" class="check-again">Check another pair of texts</a>
     <h2>Detailed Matches</h2>
     <ul>
-        {% for s1, s2, _, sim in matches %}
+        {% for s1, s2, color, sim in matches %}
         <li>Similarity: {{ sim|round(2) }} - Text 1: "{{ s1 }}" | Text 2: "{{ s2 }}"</li>
         {% endfor %}
     </ul>
