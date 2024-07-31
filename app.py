@@ -96,7 +96,7 @@ def compare_texts(text1, text2):
         best_match = None
         best_sim = 0
         for j, (proc_sent2, orig_sent2) in enumerate(zip(processed_sentences2, original_sentences2)):
-            if orig_sent1 == orig_sent2:  # Check for exact match
+            if orig_sent1.strip() == orig_sent2.strip():  # Check for exact match, ignoring leading/trailing whitespace
                 combined_sim = 1.0
             else:
                 cosine_sim = similarity_matrix[i][j + len(processed_sentences1)]
@@ -116,7 +116,7 @@ def compare_texts(text1, text2):
                     color = 'dark_green'
                 elif best_sim >= 0.8:
                     color = 'medium_green'
-                elif best_sim >= 0.3:
+                elif best_sim >= 0.5:
                     color = 'light_green'
                 else:
                     color = None
@@ -132,28 +132,30 @@ def compare_texts(text1, text2):
     
     return matches, similarity_percentage
 
-
 def highlight_text_html(text, matches, is_text1=True):
     highlighted_text = text
     
     color_map = {
         'dark_green': '#00B050',
         'medium_green': '#92D050',
-        'light_green': '#C6E0B4' 
+        'light_green': '#C6E0B4'
     }
     
-    for sent1, sent2, color, _ in matches:
-        html_color = color_map[color]
-        sent_to_replace = sent1 if is_text1 else sent2
-        highlighted_text = highlighted_text.replace(
-            sent_to_replace, 
-            f'<span style="background-color: {html_color};">{html.escape(sent_to_replace)}</span>'
-        )
+    # Sort matches by length of the matching text (longest first) to avoid nested highlighting issues
+    sorted_matches = sorted(matches, key=lambda x: len(x[0] if is_text1 else x[1]), reverse=True)
+    
+    for sent1, sent2, color, _ in sorted_matches:
+        if color:
+            html_color = color_map[color]
+            sent_to_replace = sent1 if is_text1 else sent2
+            highlighted_sent = f'<span style="background-color: {html_color};">{html.escape(sent_to_replace)}</span>'
+            highlighted_text = highlighted_text.replace(sent_to_replace, highlighted_sent)
     
     # Replace newlines with <br> tags to maintain line spacing
     highlighted_text = highlighted_text.replace('\n', '<br>')
     
     return highlighted_text
+
 
 def generate_html_output(text1, text2, highlighted_text1, highlighted_text2, similarity_percentage, matches):
     html_content = f"""
