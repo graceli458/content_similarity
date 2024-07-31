@@ -96,22 +96,25 @@ def compare_texts(text1, text2):
         best_match = None
         best_sim = 0
         for j, (proc_sent2, orig_sent2) in enumerate(zip(processed_sentences2, original_sentences2)):
-            cosine_sim = similarity_matrix[i][j + len(processed_sentences1)]
-            jaccard_sim = jaccard_similarity(set(proc_sent1.split()), set(proc_sent2.split()))
-            lcs_sim = lcs_similarity(proc_sent1, proc_sent2)
-            
-            words1 = set(proc_sent1.split())
-            words2 = set(proc_sent2.split())
-            synonym_overlap = sum(1 for w1 in words1 for w2 in words2 if w2 in get_synonyms(w1))
-            synonym_sim = synonym_overlap / max(len(words1), len(words2)) if max(len(words1), len(words2)) > 0 else 0
-            
-            combined_sim = (cosine_sim + jaccard_sim + lcs_sim + synonym_sim) / 4
+            if orig_sent1 == orig_sent2:  # Check for exact match
+                combined_sim = 1.0
+            else:
+                cosine_sim = similarity_matrix[i][j + len(processed_sentences1)]
+                jaccard_sim = jaccard_similarity(set(proc_sent1.split()), set(proc_sent2.split()))
+                lcs_sim = lcs_similarity(proc_sent1, proc_sent2)
+                
+                words1 = set(proc_sent1.split())
+                words2 = set(proc_sent2.split())
+                synonym_overlap = sum(1 for w1 in words1 for w2 in words2 if w2 in get_synonyms(w1))
+                synonym_sim = synonym_overlap / max(len(words1), len(words2)) if max(len(words1), len(words2)) > 0 else 0
+                
+                combined_sim = (cosine_sim + jaccard_sim + lcs_sim + synonym_sim) / 4
             
             if combined_sim > best_sim:
                 best_sim = combined_sim
-                if best_sim >= 0.8:
+                if best_sim == 1.0:
                     color = 'dark_green'
-                elif best_sim >= 0.7:
+                elif best_sim >= 0.8:
                     color = 'medium_green'
                 elif best_sim >= 0.3:
                     color = 'light_green'
